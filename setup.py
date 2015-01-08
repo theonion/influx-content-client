@@ -16,4 +16,5 @@ setup(
     description='a thin wrapper around the influxdb client to work with content series '
                 '-- see https://github.com/theonion/influx-trending',
 
+    url='https://github.com/theonion/influx-content-client'
 )
