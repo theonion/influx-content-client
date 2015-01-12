@@ -59,7 +59,11 @@ class ContentClient(object):
             .format(self.series, time_offset)
 
         # execute query
-        results = self.client.query(query)
+        try:
+            results = self.client.query(query)
+        except:
+            query = 'select * from {} where time > now() - {}'
+            results = self.client.query(query)
 
         # make content objects
         content_objects = []
