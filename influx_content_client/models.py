@@ -1,6 +1,6 @@
 class Content(object):
 
-    def __init__(self, content_id, clicks, site=None, **kwargs):
+    def __init__(self, content_id=None, clicks=0, site=None, **kwargs):
         """creates a new instance
 
 
