@@ -1,9 +1,9 @@
 from influxdb import InfluxDBClient
 
-from .models import Content
+from .models import PopularContent, TrendingContent
 
 
-class ContentClient(object):
+class BaseClient(object):
     """a client object to interact with influxdb
     """
 
@@ -51,6 +51,15 @@ class ContentClient(object):
         :return: a list of content
         :rtype: [Content, ]
         """
+        raise NotImplementedError
+
+
+class PopularClient(BaseClient):
+
+    def __init__(self, host, port, username, password, db, series):
+        super(PopularClient, self).__init__(host, port, username, password, db, series)
+
+    def get_content(self, time_offset, limit=None):
         # construct query
         query = 'select sum(clicks) as clicks ' \
                 'from {} ' \
@@ -59,11 +68,7 @@ class ContentClient(object):
             .format(self.series, time_offset)
 
         # execute query
-        try:
-            results = self.client.query(query)
-        except:
-            query = 'select * from {} where time > now() - {}'.format(self.series, time_offset)
-            results = self.client.query(query)
+        results = self.client.query(query)
 
         # make content objects
         content_objects = []
@@ -72,7 +77,43 @@ class ContentClient(object):
             columns = result.get('columns', [])
             points = result.get('points', [])
             for point in points:
-                content = Content.from_query_result(columns, point)
+                content = PopularContent.from_query_result(columns, point)
+                content.site = site
+                content_objects.append(content)
+
+        # sort content objects
+        content_objects.sort(reverse=True)
+
+        # return objects
+        if limit:
+            return content_objects[:limit]
+        return content_objects
+
+
+class TrendingClient(BaseClient):
+
+    def __init__(self, host, port, username, password, db, series):
+        super(TrendingClient, self).__init__(host, port, username, password, db, series)
+
+    def get_content(self, time_offset, limit=None):
+        # construct query
+        query = 'select * ' \
+                'from {} ' \
+                'where time > now() - {} ' \
+                'and acceleration > 0'\
+            .format(self.series, time_offset)
+
+        # execute query
+        results = self.client.query(query)
+
+        # make content objects
+        content_objects = []
+        for result in results:
+            site = result.get('name', '').split('.')[0]
+            columns = result.get('columns', [])
+            points = result.get('points', [])
+            for point in points:
+                content = TrendingContent.from_query_result(columns, point)
                 content.site = site
                 content_objects.append(content)
 
