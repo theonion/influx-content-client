@@ -38,7 +38,7 @@ class BaseContent(object):
         :return: a new instance of Content
         :rtype: BaseContent
         """
-        return BaseContent(**dict(zip(columns, point_list)))
+        raise NotImplementedError
 
 
 class PopularContent(BaseContent):
@@ -68,6 +68,10 @@ class PopularContent(BaseContent):
     def __lt__(self, other):
         return self.clicks < other.clicks
 
+    @classmethod
+    def from_query_result(cls, columns, point_list):
+        return PopularContent(**dict(zip(columns, point_list)))
+
 
 class TrendingContent(BaseContent):
 
@@ -95,3 +99,7 @@ class TrendingContent(BaseContent):
 
     def __lt__(self, other):
         return self.acceleration < other.acceleration
+
+    @classmethod
+    def from_query_result(cls, columns, point_list):
+        return TrendingContent(**dict(zip(columns, point_list)))

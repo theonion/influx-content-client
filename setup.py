@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
     name='influx-content-client',
-    version='0.0.6',
+    version='0.0.7',
 
     packages=['influx_content_client'],
 
