@@ -1,2 +1,2 @@
-from .clients import ContentClient
-from .models import BaseContent
+from .clients import PopularClient, TrendingClient
+from .models import PopularContent, TrendingContent
